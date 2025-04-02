@@ -10,15 +10,6 @@ pip install netifaces
 pip install scapy
 pip install psutil
 '''
-# Convert synthetic network flows to live traffic using Scapy and dynamic BN generation
-import os
-import sys
-
-# Get conda environment name (if using conda)
-conda_env = os.environ.get('CONDA_DEFAULT_ENV', 'Not in a conda environment')
-print(f"Conda environment: {conda_env}")
-print(f"Python executable: {sys.executable}")
-# Convert synthetic network flows to live traffic using Scapy and dynamic BN generation
 import os
 import sys
 import time
@@ -29,18 +20,17 @@ import pandas as pd
 import bnlearn as bn
 import netifaces as ni
 from scapy.all import *
-import psutil
 
 # --- CONFIG ---
 INTERFACE = "eth0"
 GMM_MODELS_PATH = '/models/gmm_models.joblib'
 BN_MODEL_PATH = '/models/bn_model.joblib'
 PACKETS_PER_BATCH = 100
-DELAY_BETWEEN_PACKETS = 0.1  # seconds
-DELAY_BETWEEN_BATCHES = 5    # seconds
+DELAY_BETWEEN_PACKETS = 0.1
+DELAY_BETWEEN_BATCHES = 5
 
-TARGET_INTERFACE_NAME = "Wi-Fi"        # or use 'Intel(R) Wi-Fi 6 AX201 160MHz' in some cases
-TARGET_INTERFACE_IP = "10.136.13.210"  # You can use this instead of name
+TARGET_INTERFACE_NAME = "Wi-Fi"
+TARGET_INTERFACE_IP = "10.136.13.210" 
 
 
 def get_own_ip_and_mac(interface):
