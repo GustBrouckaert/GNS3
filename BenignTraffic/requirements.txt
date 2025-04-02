@@ -1,0 +1,9 @@
+pip install numpy==1.26.4
+pip install pandas
+pip install joblib
+pip install pgmpy==0.1.19
+pip install scikit-learn
+pip install bnlearn
+pip install netifaces
+pip install scapy
+pip install psutil
