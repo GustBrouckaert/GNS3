@@ -18,9 +18,9 @@ import joblib
 import numpy as np
 import pandas as pd
 import bnlearn as bn
-import netifaces as ni
 from scapy.all import *
 import psutil
+import socket
 
 # --- CONFIG ---
 GMM_MODELS_PATH = '/models/gmm_models.joblib'
@@ -32,38 +32,33 @@ DELAY_BETWEEN_BATCHES = 5
 TARGET_INTERFACE_NAME = "Wi-Fi"
 TARGET_INTERFACE_IP = "10.136.13.210"
 
-import psutil  # Required for friendly names
-
-def find_interface_by_ip_or_name(target_name=None, target_ip=None):
-    for iface in ni.interfaces():
-        try:
-            addrs = ni.ifaddresses(iface)
-            if ni.AF_INET in addrs:
-                ip = addrs[ni.AF_INET][0]['addr']
-                mac = addrs[ni.AF_LINK][0]['addr']
-
-                # Get friendly name using psutil
-                for nic, snic_list in psutil.net_if_addrs().items():
-                    for snic in snic_list:
-                        if snic.address == ip:
-                            if (target_name and nic == target_name) or (target_ip and ip == target_ip):
-                                return nic, ip, mac
-
-        except Exception:
+def get_interface_info(target_name=None, target_ip=None):
+    for iface_name, addrs in psutil.net_if_addrs().items():
+        ip, mac = None, None
+        for addr in addrs:
+            if addr.family == socket.AF_INET:
+                ip = addr.address
+            elif addr.family == psutil.AF_LINK:
+                mac = addr.address
+        if not ip or not mac:
             continue
+        if (target_name and iface_name == target_name) or (target_ip and ip == target_ip):
+            return iface_name, ip, mac
     raise RuntimeError(f"No matching interface found for name '{target_name}' or IP '{target_ip}'.")
 
-INTERFACE, src_ip, src_mac = find_interface_by_ip_or_name(TARGET_INTERFACE_NAME, TARGET_INTERFACE_IP)
+
+INTERFACE, src_ip, src_mac = get_interface_info(TARGET_INTERFACE_NAME, TARGET_INTERFACE_IP)
 print(f"Using interface: {INTERFACE} | IP: {src_ip} | MAC: {src_mac}")
 
-def get_own_ip_and_mac(interface):
-    try:
-        ip = ni.ifaddresses(interface)[ni.AF_INET][0]['addr']
-        mac = ni.ifaddresses(interface)[ni.AF_LINK][0]['addr']
-        return ip, mac
-    except Exception as e:
-        print(f"Error detecting interface '{interface}':", e)
-        return None, None
+def get_mac_from_ip(ip):
+    for nic, snic_list in psutil.net_if_addrs().items():
+        for snic in snic_list:
+            if snic.family == socket.AF_INET and snic.address == ip:
+                for snic2 in snic_list:
+                    if snic2.family == psutil.AF_LINK:
+                        return snic2.address
+    return None
+
 
 def discover_devices(interface, timeout=0):
     ip, _ = get_own_ip_and_mac(interface)
