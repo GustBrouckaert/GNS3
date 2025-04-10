@@ -25,35 +25,11 @@ import psutil
 # --- CONFIG ---
 GMM_MODELS_PATH = '/models/gmm_models.joblib'
 BN_MODEL_PATH = '/models/bn_model.joblib'
-PACKETS_PER_BATCH = 100
+PACKETS_PER_BATCH = 1000
 DELAY_BETWEEN_PACKETS = 0.1  
 DELAY_BETWEEN_BATCHES = 5 
 
 TARGET_INTERFACE_NAME = "Ethernet"
-
-import psutil  # Required for friendly names
-
-def find_interface_by_ip_or_name(target_name=None, target_ip=None):
-    for iface in ni.interfaces():
-        try:
-            addrs = ni.ifaddresses(iface)
-            if ni.AF_INET in addrs:
-                ip = addrs[ni.AF_INET][0]['addr']
-                mac = addrs[ni.AF_LINK][0]['addr']
-
-                # Get friendly name using psutil
-                for nic, snic_list in psutil.net_if_addrs().items():
-                    for snic in snic_list:
-                        if snic.address == ip:
-                            if (target_name and nic == target_name) or (target_ip and ip == target_ip):
-                                return nic, ip, mac
-
-        except Exception:
-            continue
-    raise RuntimeError(f"No matching interface found for name '{target_name}' or IP '{target_ip}'.")
-
-INTERFACE, src_ip, src_mac = find_interface_by_ip_or_name(TARGET_INTERFACE_NAME, TARGET_INTERFACE_IP)
-print(f"Using interface: {INTERFACE} | IP: {src_ip} | MAC: {src_mac}")
 
 def get_own_ip_and_mac(interface):
     try:
@@ -65,18 +41,12 @@ def get_own_ip_and_mac(interface):
         return None, None
 
 def discover_devices(interface, timeout=0):
-    ip, _ = get_own_ip_and_mac(interface)
-    if not ip:
-        return []
-
-    base_ip = '.'.join(ip.split('.')[:3]) + '.'
+    base_ip = "192.168.10."
     discovered = []
 
     print(f"Scanning local network on {base_ip}2 to {base_ip}30...")
     for i in range(2, 31):
         target_ip = base_ip + str(i)
-        if target_ip == ip:
-            continue
         arp = ARP(pdst=target_ip)
         ether = Ether(dst="ff:ff:ff:ff:ff:ff")
         packet = ether / arp
@@ -88,7 +58,8 @@ def discover_devices(interface, timeout=0):
             })
     return discovered
 
-DESTINATION_DEVICES = discover_devices(INTERFACE)
+DESTINATION_DEVICES = discover_devices(TARGET_INTERFACE_NAME)
+
 if not DESTINATION_DEVICES:
     raise ValueError("No devices found on the network to send packets to.")
 
@@ -149,6 +120,10 @@ def send_synthetic_batch():
 
 # --- Main Loop ---
 if __name__ == '__main__':
+    print("Starting main")
+    INTERFACE, src_ip, src_mac = get_own_ip_and_mac(TARGET_INTERFACE_NAME)
+    print(f"Using interface: {INTERFACE} | IP: {src_ip} | MAC: {src_mac}")
+
     print("Synthetic flow sender ready. Press Ctrl+C to stop.")
     try:
         while True:
