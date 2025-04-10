@@ -30,9 +30,12 @@ PACKETS_PER_BATCH = 100
 DELAY_BETWEEN_PACKETS = 0.1
 DELAY_BETWEEN_BATCHES = 5
 
-TARGET_INTERFACE_NAME = "Wi-Fi"
-TARGET_INTERFACE_IP = "10.136.13.210" 
-
+try:
+    src_mac = get_if_hwaddr(INTERFACE)
+    src_ip = get_if_addr(INTERFACE)
+    print(f"[+] Using interface '{INTERFACE}' with IP {src_ip} and MAC {src_mac}")
+except Exception as e:
+    print(f"[!] Could not get interface details: {e}")
 
 def discover_devices(interface, timeout=0):
     base_ip = "192.168.10."
@@ -108,13 +111,6 @@ def send_synthetic_batch():
     print(f"Sent {PACKETS_PER_BATCH} synthetic packets")
 
 if __name__ == '__main__':
-    try:
-        src_mac = get_if_hwaddr(INTERFACE)
-        src_ip = get_if_addr(INTERFACE)
-        print(f"[+] Using interface '{INTERFACE}' with IP {src_ip} and MAC {src_mac}")
-    except Exception as e:
-        print(f"[!] Could not get interface details: {e}")
-
     print("Synthetic flow sender ready. Press Ctrl+C to stop.")
     try:
         while True:

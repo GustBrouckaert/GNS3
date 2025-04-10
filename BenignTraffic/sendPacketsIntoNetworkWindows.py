@@ -21,6 +21,7 @@ import bnlearn as bn
 import netifaces as ni
 from scapy.all import *
 import psutil
+from scapy.all import get_if_hwaddr, get_if_addr
 
 # --- CONFIG ---
 GMM_MODELS_PATH = '/models/gmm_models.joblib'
@@ -31,14 +32,12 @@ DELAY_BETWEEN_BATCHES = 5
 
 TARGET_INTERFACE_NAME = "Ethernet"
 
-def get_own_ip_and_mac(interface):
-    try:
-        ip = ni.ifaddresses(interface)[ni.AF_INET][0]['addr']
-        mac = ni.ifaddresses(interface)[ni.AF_LINK][0]['addr']
-        return ip, mac
-    except Exception as e:
-        print(f"Error detecting interface '{interface}':", e)
-        return None, None
+try:
+    src_mac = get_if_hwaddr(TARGET_INTERFACE_NAME)
+    src_ip = get_if_addr(TARGET_INTERFACE_NAME)
+    print(f"[+] Using interface '{TARGET_INTERFACE_NAME}' with IP {src_ip} and MAC {src_mac}")
+except Exception as e:
+    print(f"[!] Could not get interface details: {e}")
 
 def discover_devices(interface, timeout=0):
     base_ip = "192.168.10."
@@ -46,11 +45,12 @@ def discover_devices(interface, timeout=0):
 
     print(f"Scanning local network on {base_ip}2 to {base_ip}30...")
     for i in range(2, 31):
+        print("arping: {base_ip}", i)
         target_ip = base_ip + str(i)
         arp = ARP(pdst=target_ip)
         ether = Ether(dst="ff:ff:ff:ff:ff:ff")
         packet = ether / arp
-        ans = srp(packet, iface=interface, timeout=timeout, verbose=False)[0]
+        ans = srp(packet, iface=interface, timeout=timeout, verbose=True)[0]
         for sent, received in ans:
             discovered.append({
                 "ip": received.psrc,
@@ -63,11 +63,9 @@ DESTINATION_DEVICES = discover_devices(TARGET_INTERFACE_NAME)
 if not DESTINATION_DEVICES:
     raise ValueError("No devices found on the network to send packets to.")
 
-# --- Load Models ---
 gmm_models = joblib.load(GMM_MODELS_PATH)
 bn_model = joblib.load(BN_MODEL_PATH)
 
-# --- Reconstruct Numerical Features ---
 def reconstruct_numerical(df):
     for feature, gmm in gmm_models.items():
         df[feature] = df[feature + '_gmm'].apply(
@@ -78,7 +76,6 @@ def reconstruct_numerical(df):
         )
     return df
 
-# --- Send Packets ---
 def send_synthetic_batch():
     df = bn.sampling(bn_model, n=PACKETS_PER_BATCH)
     df = reconstruct_numerical(df)
@@ -91,8 +88,8 @@ def send_synthetic_batch():
         src_port = int(row.get("Src Port", random.randint(1024, 65535)))
         dst_port = int(row.get("Dst Port", 80))
 
-        ether = Ether(src=src_mac, dst=dst_mac)
-        ip = IP(src=src_ip, dst=dst_ip)
+        ether = Ether(dst=dst_mac)
+        ip = IP(dst=dst_ip)
 
         if proto == 6 or str(proto).lower() == "tcp":
             l4 = TCP(sport=src_port, dport=dst_port)
@@ -118,11 +115,8 @@ def send_synthetic_batch():
 
     print(f"Sent {PACKETS_PER_BATCH} synthetic packets from {src_ip} ({src_mac})")
 
-# --- Main Loop ---
 if __name__ == '__main__':
     print("Starting main")
-    INTERFACE, src_ip, src_mac = get_own_ip_and_mac(TARGET_INTERFACE_NAME)
-    print(f"Using interface: {INTERFACE} | IP: {src_ip} | MAC: {src_mac}")
 
     print("Synthetic flow sender ready. Press Ctrl+C to stop.")
     try:
