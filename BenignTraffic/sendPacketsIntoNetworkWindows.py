@@ -56,13 +56,33 @@ def find_interface_by_ip_or_name(target_name=None, target_ip=None):
 INTERFACE, src_ip, src_mac = find_interface_by_ip_or_name(TARGET_INTERFACE_NAME, TARGET_INTERFACE_IP)
 print(f"Using interface: {INTERFACE} | IP: {src_ip} | MAC: {src_mac}")
 
-# --- Destination Peers ---
-DESTINATION_DEVICES = [
-    {"ip": "10.136.12.50", "mac": "08:00:27:1e:36:4a"},
-]
-DESTINATION_DEVICES = [d for d in DESTINATION_DEVICES if d['ip'] != src_ip]
+def discover_devices(interface, timeout=0):
+    ip, _ = get_own_ip_and_mac(interface)
+    if not ip:
+        return []
+
+    base_ip = '.'.join(ip.split('.')[:3]) + '.'
+    discovered = []
+
+    print(f"Scanning local network on {base_ip}2 to {base_ip}30...")
+    for i in range(2, 31):
+        target_ip = base_ip + str(i)
+        if target_ip == ip:
+            continue
+        arp = ARP(pdst=target_ip)
+        ether = Ether(dst="ff:ff:ff:ff:ff:ff")
+        packet = ether / arp
+        ans = srp(packet, iface=interface, timeout=timeout, verbose=False)[0]
+        for sent, received in ans:
+            discovered.append({
+                "ip": received.psrc,
+                "mac": received.hwsrc
+            })
+    return discovered
+
+DESTINATION_DEVICES = discover_devices(INTERFACE)
 if not DESTINATION_DEVICES:
-    raise ValueError("No valid destination devices defined.")
+    raise ValueError("No devices found on the network to send packets to.")
 
 # --- Load Models ---
 gmm_models = joblib.load(GMM_MODELS_PATH)

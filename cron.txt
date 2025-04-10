@@ -1,0 +1,10 @@
+
+
+crontab -e
+50 9 8 4 * /full/path/to/attack.sh
+
+Minute: 50
+Hour: 9 (AM)
+Day: 8 (Of the month)
+Month: 4 
+* any day of the week

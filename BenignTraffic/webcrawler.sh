@@ -9,19 +9,27 @@ agents=(
 )
 
 start_url="http://205.174.165.3"
-
 cache_folder="traffic_cache"
+delay=300
 
-delay=5
+cache_path="$(realpath "$cache_folder")"
+cron_job="*/1 * * * * rm -rf \"$cache_path\"/*"
+
+(crontab -l 2>/dev/null | grep -F "$cron_job") >/dev/null
+if [ $? -ne 0 ]; then
+  echo "[$(date)] Adding cron job to clean $cache_path every 5 minutes."
+  (crontab -l 2>/dev/null; echo "$cron_job") | crontab -
+else
+  echo "[$(date)] Cron job already exists. Skipping."
+fi
 
 while true; do
   rand_agent=${agents[$RANDOM % ${#agents[@]}]}
-
   echo "[$(date)] Starting crawl with User-Agent: $rand_agent"
 
   wget --recursive \
-       --level=2 \
-       --wait=1 \
+       --level=inf \
+       --wait=2 \
        --random-wait \
        --adjust-extension \
        --page-requisites \
@@ -32,8 +40,7 @@ while true; do
        "$start_url"
 
   echo "[$(date)] Crawl completed."
-
-  echo "[$(date)] Cleaning up downladed data..."
+  echo "[$(date)] Cleaning up downloaded data..."
 
   rm -rf "$cache_folder"
 

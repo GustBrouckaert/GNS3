@@ -57,17 +57,16 @@ if not DESTINATION_DEVICES:
     raise ValueError("No valid destination devices defined.")
 '''
 
-def discover_devices(interface, timeout=3):
+def discover_devices(interface, timeout=0):
     ip, _ = get_own_ip_and_mac(interface)
     if not ip:
         return []
 
-    # Determine subnet (assumes /24; can be made smarter)
     base_ip = '.'.join(ip.split('.')[:3]) + '.'
     discovered = []
 
-    print(f"Scanning local network on {base_ip}0/24...")
-    for i in range(1, 255):
+    print(f"Scanning local network on {base_ip}2 to {base_ip}30...")
+    for i in range(2, 31):
         target_ip = base_ip + str(i)
         if target_ip == ip:
             continue
@@ -86,12 +85,9 @@ DESTINATION_DEVICES = discover_devices(INTERFACE)
 if not DESTINATION_DEVICES:
     raise ValueError("No devices found on the network to send packets to.")
 
-
-# --- Load Models ---
 gmm_models = joblib.load(GMM_MODELS_PATH)
 bn_model = joblib.load(BN_MODEL_PATH)
 
-# --- Reconstruct Numerical Features ---
 def reconstruct_numerical(df):
     for feature, gmm in gmm_models.items():
         df[feature] = df[feature + '_gmm'].apply(
@@ -102,7 +98,6 @@ def reconstruct_numerical(df):
         )
     return df
 
-# --- Send Packets ---
 def send_synthetic_batch():
     df = bn.sampling(bn_model, n=PACKETS_PER_BATCH)
     df = reconstruct_numerical(df)
@@ -125,9 +120,8 @@ def send_synthetic_batch():
         else:
             l4 = ICMP()
 
-        # Ensure a valid, positive payload size
         payload_size = int(row.get("Total Length of Fwd Packets", 100))
-        payload_size = max(0, min(payload_size, 1400))  # clamp between 0 and 1400
+        payload_size = max(0, min(payload_size, 1400))
 
         payload = Raw(load=os.urandom(payload_size))
 
@@ -142,7 +136,6 @@ def send_synthetic_batch():
 
     print(f"Sent {PACKETS_PER_BATCH} synthetic packets from {src_ip} ({src_mac})")
 
-# --- Main Loop ---
 if __name__ == '__main__':
     print("Synthetic flow sender ready. Press Ctrl+C to stop.")
     try:
