@@ -10,6 +10,7 @@ pip install netifaces
 pip install scapy
 pip install psutil
 '''
+print("Start Loading Libraries")
 import os
 import sys
 import time
@@ -20,9 +21,9 @@ import pandas as pd
 import bnlearn as bn
 from scapy.all import *
 from scapy.all import get_if_hwaddr, get_if_addr
-
+Print("Libraries loaded succesfully")
 # --- CONFIG ---
-INTERFACE = "eth0"
+INTERFACE = "ens3"
 GMM_MODELS_PATH = '/models/gmm_models.joblib'
 BN_MODEL_PATH = '/models/bn_model.joblib'
 PACKETS_PER_BATCH = 500
@@ -53,11 +54,12 @@ def discover_devices(interface, timeout=0):
                 "mac": received.hwsrc
             })
     return discovered
-
+print("Start search for destination devices")
 DESTINATION_DEVICES = discover_devices(INTERFACE)
 if not DESTINATION_DEVICES:
     raise ValueError("No devices found on the network to send packets to.")
 
+print("Load models")
 gmm_models = joblib.load(GMM_MODELS_PATH)
 bn_model = joblib.load(BN_MODEL_PATH)
 
