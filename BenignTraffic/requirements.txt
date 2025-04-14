@@ -4,6 +4,5 @@ joblib
 pgmpy==0.1.19
 scikit-learn
 bnlearn
-netifaces
 scapy
 psutil
