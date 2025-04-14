@@ -18,7 +18,6 @@ import joblib
 import numpy as np
 import pandas as pd
 import bnlearn as bn
-import netifaces as ni
 from scapy.all import *
 from scapy.all import get_if_hwaddr, get_if_addr
 
@@ -26,9 +25,9 @@ from scapy.all import get_if_hwaddr, get_if_addr
 INTERFACE = "eth0"
 GMM_MODELS_PATH = '/models/gmm_models.joblib'
 BN_MODEL_PATH = '/models/bn_model.joblib'
-PACKETS_PER_BATCH = 100
+PACKETS_PER_BATCH = 500
 DELAY_BETWEEN_PACKETS = 0.1
-DELAY_BETWEEN_BATCHES = 5
+DELAY_BETWEEN_BATCHES = 1000
 
 try:
     src_mac = get_if_hwaddr(INTERFACE)

