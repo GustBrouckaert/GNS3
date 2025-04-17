@@ -24,8 +24,8 @@ from scapy.all import get_if_hwaddr, get_if_addr
 print("Libraries loaded succesfully")
 # --- CONFIG ---
 INTERFACE = "ens3"
-GMM_MODELS_PATH = '/models/gmm_models-model1.joblib'
-BN_MODEL_PATH = '/models/bn_model1.joblib'
+GMM_MODELS_PATH = 'BenignTraffic//models/gmm_models-model1.joblib'
+BN_MODEL_PATH = 'BenignTraffic/models/bn_model1.joblib'
 PACKETS_PER_BATCH = 500
 DELAY_BETWEEN_PACKETS = 0.1
 DELAY_BETWEEN_BATCHES = 1000
