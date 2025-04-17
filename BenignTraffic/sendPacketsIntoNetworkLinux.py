@@ -24,8 +24,8 @@ from scapy.all import get_if_hwaddr, get_if_addr
 print("Libraries loaded succesfully")
 # --- CONFIG ---
 INTERFACE = "ens3"
-GMM_MODELS_PATH = '/models/gmm_models.joblib'
-BN_MODEL_PATH = '/models/bn_model.joblib'
+GMM_MODELS_PATH = '/models/gmm_models1.joblib'
+BN_MODEL_PATH = '/models/bn_model1.joblib'
 PACKETS_PER_BATCH = 500
 DELAY_BETWEEN_PACKETS = 0.1
 DELAY_BETWEEN_BATCHES = 1000
@@ -37,7 +37,7 @@ try:
 except Exception as e:
     print(f"[!] Could not get interface details: {e}")
 
-def discover_devices(interface, timeout=0):
+def discover_devices(interface, timeout=2):
     base_ip = "192.168.10."
     discovered = []
 
