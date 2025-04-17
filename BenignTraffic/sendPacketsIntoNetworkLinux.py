@@ -21,7 +21,7 @@ import pandas as pd
 import bnlearn as bn
 from scapy.all import *
 from scapy.all import get_if_hwaddr, get_if_addr
-Print("Libraries loaded succesfully")
+print("Libraries loaded succesfully")
 # --- CONFIG ---
 INTERFACE = "ens3"
 GMM_MODELS_PATH = '/models/gmm_models.joblib'
