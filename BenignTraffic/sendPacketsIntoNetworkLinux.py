@@ -33,11 +33,9 @@ DELAY_BETWEEN_BATCHES = 1000
 
 print("Load models")
 gmm_models = joblib.load(GMM_MODELS_PATH)
-bn_model = joblib.load(BN_MODEL_PATH)
+bn_model = bn.load(BN_MODEL_PATH)
 
 print(type(bn_model))
-print(bn_model.keys())
-
 
 try:
     src_mac = get_if_hwaddr(INTERFACE)
