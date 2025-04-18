@@ -35,6 +35,8 @@ print("Load models")
 gmm_models = joblib.load(GMM_MODELS_PATH)
 bn_model = bn.load(BN_MODEL_PATH)
 
+print(bn_model['model'].get_cpds())
+
 print(type(bn_model))
 
 try:
