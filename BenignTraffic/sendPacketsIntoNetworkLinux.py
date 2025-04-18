@@ -21,6 +21,7 @@ import pandas as pd
 import bnlearn as bn
 from scapy.all import *
 from scapy.all import get_if_hwaddr, get_if_addr
+from pgmpy.sampling import BayesianModelSampling
 print("Libraries loaded succesfully")
 # --- CONFIG ---
 INTERFACE = "ens3"
@@ -63,6 +64,9 @@ print("Load models")
 gmm_models = joblib.load(GMM_MODELS_PATH)
 bn_model = joblib.load(BN_MODEL_PATH)
 
+print(type(bn_model))
+
+
 def reconstruct_numerical(df):
     for feature, gmm in gmm_models.items():
         df[feature] = df[feature + '_gmm'].apply(
@@ -74,7 +78,11 @@ def reconstruct_numerical(df):
     return df
 
 def send_synthetic_batch():
-    df = bn.sampling(bn_model, n=PACKETS_PER_BATCH)
+    #df = bn.sampling(bn_model, n=PACKETS_PER_BATCH)
+
+    inference = BayesianModelSampling(bn_model)
+    df = inference.forward_sample(size=PACKETS_PER_BATCH)
+
     df = reconstruct_numerical(df)
 
     for _, row in df.iterrows():
