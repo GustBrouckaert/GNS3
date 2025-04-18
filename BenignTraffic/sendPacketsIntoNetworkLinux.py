@@ -31,6 +31,14 @@ PACKETS_PER_BATCH = 500
 DELAY_BETWEEN_PACKETS = 0.1
 DELAY_BETWEEN_BATCHES = 1000
 
+print("Load models")
+gmm_models = joblib.load(GMM_MODELS_PATH)
+bn_model = joblib.load(BN_MODEL_PATH)
+
+print(type(bn_model))
+print(bn_model.keys())
+
+
 try:
     src_mac = get_if_hwaddr(INTERFACE)
     src_ip = get_if_addr(INTERFACE)
@@ -59,12 +67,6 @@ print("Start search for destination devices")
 DESTINATION_DEVICES = discover_devices(INTERFACE)
 if not DESTINATION_DEVICES:
     raise ValueError("No devices found on the network to send packets to.")
-
-print("Load models")
-gmm_models = joblib.load(GMM_MODELS_PATH)
-bn_model = joblib.load(BN_MODEL_PATH)
-
-print(type(bn_model))
 
 
 def reconstruct_numerical(df):
