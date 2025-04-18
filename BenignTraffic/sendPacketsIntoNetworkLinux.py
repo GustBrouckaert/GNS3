@@ -26,7 +26,7 @@ print("Libraries loaded succesfully")
 # --- CONFIG ---
 INTERFACE = "ens3"
 GMM_MODELS_PATH = 'BenignTraffic//models/gmm_models-model1.joblib'
-BN_MODEL_PATH = 'BenignTraffic/models/bn_model1.joblib'
+BN_MODEL_PATH = 'BenignTraffic/models/bn_model1.pkl'
 PACKETS_PER_BATCH = 500
 DELAY_BETWEEN_PACKETS = 0.1
 DELAY_BETWEEN_BATCHES = 1000
