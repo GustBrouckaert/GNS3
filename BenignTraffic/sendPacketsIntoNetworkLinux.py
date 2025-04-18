@@ -80,7 +80,9 @@ def reconstruct_numerical(df):
     return df
 
 def send_synthetic_batch():
-    df = bn.sampling(bn_model['model'], n=PACKETS_PER_BATCH)
+    #df = bn.sampling(bn_model['model'], n=PACKETS_PER_BATCH)
+    sampler = BayesianModelSampling(bn_model['model'])
+    df = sampler.forward_sample(size=PACKETS_PER_BATCH)
     df = reconstruct_numerical(df)
 
     for _, row in df.iterrows():
