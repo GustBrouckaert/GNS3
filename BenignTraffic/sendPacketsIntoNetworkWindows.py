@@ -24,13 +24,21 @@ import psutil
 from scapy.all import get_if_hwaddr, get_if_addr
 
 # --- CONFIG ---
-GMM_MODELS_PATH = '/models/gmm_models.joblib'
-BN_MODEL_PATH = '/models/bn_model.joblib'
+GMM_MODELS_PATH = 'BenignTraffic//models/gmm_models-model1.joblib'
+BN_MODEL_PATH = 'BenignTraffic/models/bn_model1.pkl'
 PACKETS_PER_BATCH = 1000
 DELAY_BETWEEN_PACKETS = 0.1  
 DELAY_BETWEEN_BATCHES = 5 
 
 TARGET_INTERFACE_NAME = "Ethernet"
+
+print("Load models")
+gmm_models = joblib.load(GMM_MODELS_PATH)
+bn_model = bn.load(BN_MODEL_PATH)
+
+print(bn_model['model'].get_cpds())
+
+print(type(bn_model))
 
 try:
     src_mac = get_if_hwaddr(TARGET_INTERFACE_NAME)
@@ -58,7 +66,13 @@ def discover_devices(interface, timeout=0):
             })
     return discovered
 
-DESTINATION_DEVICES = discover_devices(TARGET_INTERFACE_NAME)
+#DESTINATION_DEVICES = discover_devices(TARGET_INTERFACE_NAME)
+
+DESTINATION_DEVICES = [
+    {"ip": "192.168.10.2", "mac": "00:11:22:33:44:55"},
+    {"ip": "192.168.10.5", "mac": "66:77:88:99:AA:BB"},
+    {"ip": "192.168.10.10", "mac": "CC:DD:EE:FF:00:11"},
+]
 
 if not DESTINATION_DEVICES:
     raise ValueError("No devices found on the network to send packets to.")
@@ -108,7 +122,7 @@ def send_synthetic_batch():
         packet = ether / ip / l4 / payload
 
         try:
-            sendp(packet, iface=INTERFACE, verbose=False)
+            sendp(packet, iface=TARGET_INTERFACE_NAME, verbose=False)
         except Exception as e:
             print(f"[!] Failed to send packet: {e}")
         time.sleep(DELAY_BETWEEN_PACKETS)
