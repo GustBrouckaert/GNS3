@@ -7,7 +7,6 @@ GMM_MODELS_PATH = 'BenignTraffic/models/gmm_models-model1.joblib'
 print("Load models")
 
 model = bn.load(BN_MODEL_PATH)
-print(type(model))
-print(model['model'].get_cpds())
+print(type(model['model']))
+model['model'].get_cpds()
 df = bn.sampling(model, n=10)
-print(df.head())
