@@ -1,0 +1,1 @@
+This folder will contain all the pcap file captured with tcpdump and the correct destination for labelling in a later stage.
