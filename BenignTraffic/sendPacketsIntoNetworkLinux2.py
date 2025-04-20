@@ -12,7 +12,7 @@ from scapy.all import get_if_hwaddr, get_if_addr
 from pgmpy.sampling import BayesianModelSampling
 print("Libraries loaded succesfully")
 # --- CONFIG ---
-INTERFACE = "ens3"
+INTERFACE = "eth0"
 GMM_MODELS_PATH = 'BenignTraffic//models/gmm_models-model2.joblib'
 BN_MODEL_PATH = 'BenignTraffic/models/bn_model2.pkl'
 PACKETS_PER_BATCH = 800
@@ -62,7 +62,6 @@ if not DESTINATION_DEVICES:
 DESTINATION_DEVICES = [
     {"ip": "192.168.10.2", "mac": "0c:ff:f7:43:00:00"},
     {"ip": "192.168.10.3", "mac": "0c:c3:27:c6:00:00"},
-    {"ip": "192.168.10.12", "mac": "0c:4f:da:91:00:00"},
     {"ip": "192.168.10.14", "mac": "0c:7c:03:68:00:00"},
     {"ip": "192.168.10.19", "mac": "0c:25:30:6f:00:00"},
     {"ip": "192.168.10.20", "mac": "0c:11:5e:74:00:00"},
