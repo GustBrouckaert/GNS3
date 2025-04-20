@@ -1,7 +1,7 @@
 #!/bin/bash
 
 TARGET="http://205.174.165.68"
-INTERFACE="eth0"
+INTERFACE="ens3"
 PCAP_FILE="pcap/ddos_goldeneye_$(date +%Y%m%d_%H%M%S).pcap"
 
 echo "Starting tcpdump capture: $PCAP_FILE"
