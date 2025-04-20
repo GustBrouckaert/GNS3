@@ -1,15 +1,3 @@
-'''
-to run this file use a clean env so compatibility problems don't arise between the libraries
-pip install numpy==1.26.4
-pip install pandas
-pip install joblib
-pip install pgmpy==0.1.19
-pip install scikit-learn
-pip install bnlearn
-pip install netifaces
-pip install scapy
-pip install psutil
-'''
 print("Start Loading Libraries")
 import os
 import sys
@@ -27,9 +15,9 @@ print("Libraries loaded succesfully")
 INTERFACE = "ens3"
 GMM_MODELS_PATH = 'BenignTraffic//models/gmm_models-model1.joblib'
 BN_MODEL_PATH = 'BenignTraffic/models/bn_model1.pkl'
-PACKETS_PER_BATCH = 500
+PACKETS_PER_BATCH = 750
 DELAY_BETWEEN_PACKETS = 0.1
-DELAY_BETWEEN_BATCHES = 1000
+DELAY_BETWEEN_BATCHES = 500
 
 print("Load models")
 gmm_models = joblib.load(GMM_MODELS_PATH)
@@ -45,7 +33,7 @@ try:
     print(f"[+] Using interface '{INTERFACE}' with IP {src_ip} and MAC {src_mac}")
 except Exception as e:
     print(f"[!] Could not get interface details: {e}")
-
+'''
 def discover_devices(interface, timeout=2):
     base_ip = "192.168.10."
     discovered = []
@@ -65,9 +53,29 @@ def discover_devices(interface, timeout=2):
     return discovered
 print("Start search for destination devices")
 DESTINATION_DEVICES = discover_devices(INTERFACE)
+
 if not DESTINATION_DEVICES:
     raise ValueError("No devices found on the network to send packets to.")
 
+    
+    '''
+DESTINATION_DEVICES = [
+    {"ip": "192.168.10.2", "mac": "0c:ff:f7:43:00:00"},
+    {"ip": "192.168.10.3", "mac": "0c:c3:27:c6:00:00"},
+    {"ip": "192.168.10.12", "mac": "0c:4f:da:91:00:00"},
+    {"ip": "192.168.10.19", "mac": "0c:25:30:6f:00:00"},
+    {"ip": "192.168.10.20", "mac": "0c:11:5e:74:00:00"},
+    {"ip": "192.168.10.21", "mac": "0c:49:f3:08:00:00"},
+    {"ip": "192.168.10.22", "mac": "0c:8c:71:1d:00:00"},
+    {"ip": "192.168.10.23", "mac": "0c:8f:a6:43:00:00"},
+    {"ip": "192.168.10.24", "mac": "0c:a1:10:53:00:00"},
+    {"ip": "192.168.10.25", "mac": "0c:ee:1c:19:00:00"},
+    {"ip": "192.168.10.26", "mac": "0c:a2:bf:1e:00:00"},
+    {"ip": "192.168.10.27", "mac": "0c:dc:f7:c9:00:00"},
+    {"ip": "192.168.10.28", "mac": "0c:16:a0:d8:00:00"},
+    {"ip": "192.168.10.29", "mac": "0c:66:1d:5d:00:00"},
+    {"ip": "192.168.10.30", "mac": "0c:bb:4f:b4:00:00"},
+]
 
 def reconstruct_numerical(df):
     for feature, gmm in gmm_models.items():
