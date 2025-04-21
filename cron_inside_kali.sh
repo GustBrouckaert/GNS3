@@ -2,8 +2,8 @@
 
 # Define the cron jobs you want to add
 CRON_JOBS=(
-    "50 9 8 5 * /home/kali/GNS3/portscan_private.sh 192.168.10.2"
-    "50 9 8 5 * /home/kali/GNS3/portscan_private.sh 192.168.10.3"
+    "26 4 22 4 * /home/kali/GNS3/portscan_private.sh 192.168.10.2"
+    "44 8 24 4 * /home/kali/GNS3/portscan_private.sh 192.168.10.3"
 )
 
 
