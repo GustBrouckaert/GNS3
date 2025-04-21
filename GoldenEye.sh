@@ -8,7 +8,7 @@ echo "Starting tcpdump capture: $PCAP_FILE"
 sudo tcpdump -i "$INTERFACE" dst 205.174.165.68 -w "$PCAP_FILE" &
 TCPDUMP_PID=$!
 
-python3 GoldenEye/goldeneye.py "$TARGET" -w 20 -s 200
+python3 /home/student/GNS3/GoldenEye/goldeneye.py "$TARGET" -w 20 -s 200
 
 kill "$TCPDUMP_PID"
 echo "DDoS simulation complete. PCAP saved to $PCAP_FILE"
