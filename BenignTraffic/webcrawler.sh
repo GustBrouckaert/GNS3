@@ -23,9 +23,10 @@ else
   echo "[$(date)] Cron job already exists. Skipping."
 fi
 
+echo "[$(date)] Starting crawl with User-Agent: $rand_agent"
+
 while true; do
   rand_agent=${agents[$RANDOM % ${#agents[@]}]}
-  echo "[$(date)] Starting crawl with User-Agent: $rand_agent"
 
   wget --recursive \
        --level=inf \
@@ -39,11 +40,6 @@ while true; do
        --no-verbose \
        "$start_url"
 
-  echo "[$(date)] Crawl completed."
-  echo "[$(date)] Cleaning up downloaded data..."
-
   rm -rf "$cache_folder"
-
-  echo "[$(date)] Sleeping for $delay seconds..."
   sleep $delay
 done

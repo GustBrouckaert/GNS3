@@ -29,7 +29,7 @@ def discover_devices(interface, timeout=2):
     discovered = []
 
     print(f"Scanning local network on {base_ip}2 to {base_ip}30...")
-    for i in range(2, 31):
+    for i in range(2, 38):
         target_ip = base_ip + str(i)
         arp = ARP(pdst=target_ip)
         ether = Ether(dst="ff:ff:ff:ff:ff:ff")
