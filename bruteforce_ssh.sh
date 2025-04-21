@@ -3,9 +3,9 @@
 TARGET="205.174.165.68"
 INTERFACE="eth0"
 USER="admin"
-BRUTE_FOLDER="./BruteForce"
+BRUTE_FOLDER="/home/kali/GNS3/BruteForce"
 WORDLIST=$(find "$BRUTE_FOLDER" -type f -name "*.txt" | shuf -n 1)
-PCAP_FILE="pcap/bruteforce_ssh_$(date +%Y%m%d_%H%M%S).pcap"
+PCAP_FILE="/home/kali/GNS3/pcap/bruteforce_ssh_$(date +%Y%m%d_%H%M%S).pcap"
 
 if [[ ! -f "$WORDLIST" ]]; then
   echo "Password list not found: $WORDLIST"

@@ -4,7 +4,7 @@ TARGET="$1"
 INTERFACE="eth0"
 PORTS="1-1000"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-PCAP_FILE="pcap/nmap_all_scans_${TIMESTAMP}.pcap"
+PCAP_FILE="/home/kali/GNS3/pcap/nmap_all_scans_${TIMESTAMP}.pcap"
 
 echo "Starting full port scan sequence..."
 echo "Target: $TARGET"

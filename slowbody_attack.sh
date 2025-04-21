@@ -3,7 +3,7 @@
 TARGET_URL="http://205.174.165.68"
 OUTPUT_PREFIX="slowbody"
 INTERFACE="eth0"
-TCPDUMP_FILE="pcap/${OUTPUT_PREFIX}_$(date +%Y%m%d_%H%M).pcap"
+TCPDUMP_FILE="/home/kali/GNS3/pcap/${OUTPUT_PREFIX}_$(date +%Y%m%d_%H%M).pcap"
 
 echo "[INFO] Starting tcpdump..."
 sudo tcpdump -i "$INTERFACE" dst 205.174.165.68 -w "$TCPDUMP_FILE" &

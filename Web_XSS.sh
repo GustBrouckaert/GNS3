@@ -2,9 +2,9 @@
 
 TARGET="http://205.174.165.68/comment.php"
 INTERFACE="eth0"
-PCAP_FILE="pcap/xss_attack_$(date +%Y%m%d_%H%M%S).pcap"
+PCAP_FILE="/home/kali/GNS3/pcap/xss_attack_$(date +%Y%m%d_%H%M%S).pcap"
 
-XSS_FOLDER="./XSS"
+XSS_FOLDER="/home/kali/GNS3/XSS"
 XSS_FILE=$(find "$XSS_FOLDER" -type f -name "*.txt" | shuf -n 1)
 
 if [ ! -f "$XSS_FILE" ]; then
