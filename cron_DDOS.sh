@@ -2,8 +2,8 @@
 
 # Define the cron jobs you want to add
 CRON_JOBS=(
-    "20 19 22 4 * /home/kali/GNS3/GoldenEye.sh"
-    "57 6 24 4 * /home/kali/GNS3/GoldenEye.sh"
+    "20 19 29 4 * /home/kali/GNS3/GoldenEye.sh"
+    "57 4 1 5 * /home/kali/GNS3/GoldenEye.sh"
 )
 
 
