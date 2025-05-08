@@ -10,36 +10,61 @@ import bnlearn as bn
 from scapy.all import *
 from scapy.all import get_if_hwaddr, get_if_addr
 from pgmpy.sampling import BayesianModelSampling
-print("Libraries loaded succesfully")
+from threading import Thread
+import socket
+
+print("Libraries loaded successfully")
+
 # --- CONFIG ---
 INTERFACE = "ens3"
 GMM_MODELS_PATH = 'BenignTraffic//models/gmm_models-model1.joblib'
 BN_MODEL_PATH = 'BenignTraffic/models/bn_model1.pkl'
-PACKETS_PER_BATCH = 750
-DELAY_BETWEEN_PACKETS = 0.1
-DELAY_BETWEEN_BATCHES = 500
+PACKETS_PER_BATCH = 8000
+DELAY_BETWEEN_PACKETS = 0.08
+DELAY_BETWEEN_BATCHES = 400
 
 print("Load models")
 gmm_models = joblib.load(GMM_MODELS_PATH)
 bn_model = bn.load(BN_MODEL_PATH)
 
 print(bn_model['model'].get_cpds())
-
 print(type(bn_model))
 
+# Get interface IP and MAC
 try:
     src_mac = get_if_hwaddr(INTERFACE)
     src_ip = get_if_addr(INTERFACE)
     print(f"[+] Using interface '{INTERFACE}' with IP {src_ip} and MAC {src_mac}")
 except Exception as e:
     print(f"[!] Could not get interface details: {e}")
-'''
+    sys.exit(1)
+
+# --- ARP Responder ---
+def respond_to_arp(interface, my_ip, my_mac):
+    def handle(pkt):
+        if ARP in pkt and pkt[ARP].op == 1 and pkt[ARP].pdst == my_ip:
+            ether = Ether(dst=pkt[ARP].hwsrc, src=my_mac)
+            arp = ARP(
+                op=2,
+                hwsrc=my_mac,
+                psrc=my_ip,
+                hwdst=pkt[ARP].hwsrc,
+                pdst=pkt[ARP].psrc
+            )
+            sendp(ether / arp, iface=interface, verbose=False)
+            print(f"[ARP] Responded to ARP from {pkt[ARP].psrc}")
+    
+    sniff(filter="arp", iface=interface, prn=handle, store=0)
+
+arp_thread = Thread(target=respond_to_arp, args=(INTERFACE, src_ip, src_mac), daemon=True)
+arp_thread.start()
+
 def discover_devices(interface, timeout=2):
     base_ip = "192.168.10."
     discovered = []
 
     print(f"Scanning local network on {base_ip}2 to {base_ip}30...")
-    for i in range(2, 31):
+    for i in range(2, 40):
         target_ip = base_ip + str(i)
         arp = ARP(pdst=target_ip)
         ether = Ether(dst="ff:ff:ff:ff:ff:ff")
@@ -51,28 +76,12 @@ def discover_devices(interface, timeout=2):
                 "mac": received.hwsrc
             })
     return discovered
+
 print("Start search for destination devices")
 DESTINATION_DEVICES = discover_devices(INTERFACE)
 
 if not DESTINATION_DEVICES:
     raise ValueError("No devices found on the network to send packets to.")
-
-    
-    '''
-DESTINATION_DEVICES = [
-    {"ip": "192.168.10.2", "mac": "0c:ff:f7:43:00:00"},
-    {"ip": "192.168.10.3", "mac": "0c:c3:27:c6:00:00"},
-    {"ip": "192.168.10.12", "mac": "0c:4f:da:91:00:00"},
-    {"ip": "192.168.10.19", "mac": "0c:25:30:6f:00:00"},
-    {"ip": "192.168.10.20", "mac": "0c:11:5e:74:00:00"},
-    {"ip": "192.168.10.21", "mac": "0c:49:f3:08:00:00"},
-    {"ip": "192.168.10.25", "mac": "0c:ee:1c:19:00:00"},
-    {"ip": "192.168.10.28", "mac": "0c:16:a0:d8:00:00"},
-    {"ip": "192.168.10.29", "mac": "0c:66:1d:5d:00:00"},
-    {"ip": "192.168.10.30", "mac": "0c:bc:4f:b4:00:00"},
-    {"ip": "192.168.10.32", "mac": "0c:1f:8b:df:00:00"},
-    {"ip": "192.168.10.34", "mac": "0c:e5:14:e9:00:00"},
-]
 
 def reconstruct_numerical(df):
     for feature, gmm in gmm_models.items():
@@ -86,8 +95,6 @@ def reconstruct_numerical(df):
 
 def send_synthetic_batch():
     df = bn.sampling(bn_model, n=PACKETS_PER_BATCH)
-    #sampler = BayesianModelSampling(bn_model['model'])
-    #df = sampler.forward_sample(size=PACKETS_PER_BATCH)
     df = reconstruct_numerical(df)
 
     for _, row in df.iterrows():
@@ -98,8 +105,8 @@ def send_synthetic_batch():
         src_port = int(row.get("Src Port", random.randint(1024, 65535)))
         dst_port = int(row.get("Dst Port", 80))
 
-        ether = Ether(dst=dst_mac)
-        ip = IP(dst=dst_ip)
+        ether = Ether(dst=dst_mac, src=src_mac)
+        ip = IP(dst=dst_ip, src=src_ip)
 
         if proto == 6 or str(proto).lower() == "tcp":
             l4 = TCP(sport=src_port, dport=dst_port)
@@ -110,9 +117,7 @@ def send_synthetic_batch():
 
         payload_size = int(row.get("Total Length of Fwd Packets", 100))
         payload_size = max(0, min(payload_size, 1400))
-
         payload = Raw(load=os.urandom(payload_size))
-
 
         packet = ether / ip / l4 / payload
 
@@ -124,6 +129,7 @@ def send_synthetic_batch():
 
     print(f"Sent {PACKETS_PER_BATCH} synthetic packets")
 
+# --- Main Loop ---
 if __name__ == '__main__':
     print("Synthetic flow sender ready. Press Ctrl+C to stop.")
     try:
