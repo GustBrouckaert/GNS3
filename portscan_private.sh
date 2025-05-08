@@ -10,7 +10,7 @@ echo "Starting full port scan sequence..."
 echo "Target: $TARGET"
 echo "Capturing all packets to: $PCAP_FILE"
 
-sudo tcpdump -i "$INTERFACE" dst "$TARGET" -w "$PCAP_FILE" &
+sudo tcpdump -i "$INTERFACE" host "$TARGET" -w "$PCAP_FILE" &
 TCPDUMP_PID=$!
 
 nmap -sS -T3 -p "$PORTS" "$TARGET"
