@@ -8,7 +8,7 @@ echo "Starting tcpdump capture: $PCAP_FILE"
 sudo tcpdump -i "$INTERFACE" host 192.168.10.3 -w "$PCAP_FILE" &
 TCPDUMP_PID=$!
 
-timeout 60s python3 /home/student/GNS3/GoldenEye/goldeneye.py "$TARGET" -w 10 -s 100
+timeout 120s python3 /home/student/GNS3/GoldenEye/goldeneye.py "$TARGET" -w 10 -s 100
 
 kill "$TCPDUMP_PID"
 echo "DDoS simulation complete. PCAP saved to $PCAP_FILE"
